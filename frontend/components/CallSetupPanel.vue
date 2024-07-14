@@ -21,6 +21,17 @@ const getDevices = async () => {
     cameras.value = devices.filter(device => device.kind === 'videoinput').map(device => ({ deviceId: device.deviceId, label: device.label }));
     microphones.value = devices.filter(device => device.kind === 'audioinput').map(device => ({ deviceId: device.deviceId, label: device.label }));
     speakers.value = devices.filter(device => device.kind === 'audiooutput').map(device => ({ deviceId: device.deviceId, label: device.label }));
+
+    // Set default devices
+    if (cameras.value.length > 0) {
+      selectedCamera.value = cameras.value[0].deviceId;
+    }
+    if (microphones.value.length > 0) {
+      selectedMicrophone.value = microphones.value[0].deviceId;
+    }
+    if (speakers.value.length > 0) {
+      selectedSpeaker.value = speakers.value[0].deviceId;
+    }
   } catch (error) {
     console.error("Error accessing media devices", error);
   }
