@@ -1,11 +1,10 @@
+<script setup>
+const props = defineProps(['label']);
+const emit = defineEmits(['click']);
+</script>
+
 <template>
-    <button class="bg-blue-500 
-        hover:bg-blue-600 
-        active:bg-blue-400 
-        text-white 
-        py-2 
-        px-4 
-        rounded">
-        <slot></slot>
-    </button>
+  <button @click="$emit('click')" class="px-4 py-2 bg-blue-600 text-white rounded-md shadow-sm hover:bg-blue-700">
+    {{ label }}
+  </button>
 </template>

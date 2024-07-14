@@ -1,9 +1,19 @@
-<script lang="ts" setup>
-import { defineProps } from 'vue'
+<script setup>
+import { ref, watch } from 'vue';
 
-defineProps(['label'])
+const props = defineProps(['label']);
+const inputValue = ref('');
+
+const emit = defineEmits(['update:inputValue']);
+
+watch(inputValue, (newValue) => {
+  emit('update:inputValue', newValue);
+});
 </script>
 
 <template>
-    <input type="text" class="border border-gray-300 rounded-md p-2 w-full" :placeholder="label" />
+  <div class="flex flex-col">
+    <label class="text-gray-700 mb-2">{{ label }}</label>
+    <input type="text" v-model="inputValue" class="p-2 border rounded-md shadow-sm" />
+  </div>
 </template>

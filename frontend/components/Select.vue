@@ -1,17 +1,26 @@
-<script lang="ts" setup>
+<script setup>
+import { ref, watch } from 'vue';
+
+const props = defineProps(['label', 'modelValue', 'options']);
+const emit = defineEmits(['update:modelValue']);
+const selectedOption = ref(props.modelValue);
+
+watch(() => props.modelValue, (newValue) => {
+  selectedOption.value = newValue;
+});
+
+watch(selectedOption, (newValue) => {
+  emit('update:modelValue', newValue);
+});
 </script>
 
 <template>
-    <div class="relative">
-        <select class="block appearance-none w-full bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500">
-            <option>Option 1</option>
-            <option>Option 2</option>
-            <option>Option 3</option>
-        </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M10 12l-6-6 1.5-1.5L10 9l4.5-4.5L16 6l-6 6z" />
-            </svg>
-        </div>
-    </div>
+  <div class="flex flex-col">
+    <label class="text-gray-700 mb-2">{{ label }}</label>
+    <select v-model="selectedOption" class="p-2 border rounded-md shadow-sm">
+      <option v-for="option in options" :key="option.deviceId" :value="option.deviceId">
+        {{ option.label || option.deviceId }}
+      </option>
+    </select>
+  </div>
 </template>
