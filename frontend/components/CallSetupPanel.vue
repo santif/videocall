@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import Select from '@/components/Select.vue';
 import TextInput from '@/components/TextInput.vue';
 import TermsAndConditions from '@/components/TermsAndConditions.vue';
@@ -26,16 +26,25 @@ const getDevices = async () => {
   }
 };
 
-onMounted(async () => {
-  await getDevices();
+const updateStream = async () => {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { deviceId: selectedCamera.value ? { exact: selectedCamera.value } : undefined },
+      audio: { deviceId: selectedMicrophone.value ? { exact: selectedMicrophone.value } : undefined }
+    });
     if (video.value) {
       video.value.srcObject = stream;
     }
   } catch (error) {
-    console.error("Error accessing the camera", error);
+    console.error("Error updating the stream", error);
   }
+};
+
+watch([selectedCamera, selectedMicrophone], updateStream);
+
+onMounted(async () => {
+  await getDevices();
+  await updateStream();
 });
 </script>
 
@@ -54,6 +63,8 @@ onMounted(async () => {
     </div>
     <TextInput label="Name" />
     <TermsAndConditions />
-    <Button @click="onCallStart">Join</Button>
+    <div class="flex justify-center">
+      <Button @click="onCallStart">Join</Button>
+    </div>
   </div>
 </template>
