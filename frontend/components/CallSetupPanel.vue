@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted } from 'vue';
 
 defineProps(['onCallStart']);
 
@@ -10,6 +10,11 @@ const selectedMicrophone = ref('');
 const microphones = ref([]);
 const selectedSpeaker = ref('');
 const speakers = ref([]);
+const audioLevel = ref(0);
+let audioContext = null;
+let analyser = null;
+let microphoneStream = null;
+let animationFrameId = null;
 
 const getDevices = async () => {
   try {
@@ -42,6 +47,27 @@ const updateStream = async () => {
     if (video.value) {
       video.value.srcObject = stream;
     }
+
+    if (audioContext) {
+      audioContext.close();
+    }
+
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioContext.createAnalyser();
+    microphoneStream = audioContext.createMediaStreamSource(stream);
+    microphoneStream.connect(analyser);
+    analyser.fftSize = 256;
+
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    const updateAudioLevel = () => {
+      analyser.getByteFrequencyData(dataArray);
+      const sum = dataArray.reduce((a, b) => a + b, 0);
+      audioLevel.value = sum / dataArray.length;
+      animationFrameId = requestAnimationFrame(updateAudioLevel);
+    };
+
+    updateAudioLevel();
   } catch (error) {
     console.error("Error updating the stream", error);
   }
@@ -53,6 +79,15 @@ onMounted(async () => {
   await getDevices();
   await updateStream();
 });
+
+onUnmounted(() => {
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+  }
+  if (audioContext) {
+    audioContext.close();
+  }
+});
 </script>
 
 <template>
@@ -60,12 +95,13 @@ onMounted(async () => {
     <h1 class="text-2xl font-bold mb-4">Welcome</h1>
     <div class="flex flex-col md:flex-row gap-4">
       <div class="flex-1">
-        <video class="w-full max-h-96 rounded-md shadow-md border-2 border-gray-300" autoplay playsinline muted ref="video"></video>
+        <video class="w-full max-h-96 rounded-md shadow-md" autoplay playsinline muted ref="video"></video>
       </div>
       <div class="flex flex-col gap-4 flex-1">
         <DeviceSelect v-model="selectedCamera" :options="cameras" label="Camera" />
         <DeviceSelect v-model="selectedMicrophone" :options="microphones" label="Microphone" />
         <DeviceSelect v-model="selectedSpeaker" :options="speakers" label="Speaker" />
+        <AudioLevelMeter :level="audioLevel" />
       </div>
     </div>
     <TextInput label="Name" />
