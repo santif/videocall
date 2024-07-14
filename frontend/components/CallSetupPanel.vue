@@ -44,7 +44,7 @@ onMounted(async () => {
     <h1 class="text-2xl font-bold mb-4">Welcome</h1>
     <div class="flex flex-col md:flex-row gap-4">
       <div class="flex-1">
-        <video class="h-40 w-full rounded-md shadow-md" autoplay playsinline muted ref="video"></video>
+        <video class="w-full max-h-96 rounded-md shadow-md" autoplay playsinline muted ref="video"></video>
       </div>
       <div class="flex flex-col gap-4 flex-1">
         <Select v-model="selectedCamera" :options="cameras" label="Camera" />
@@ -54,6 +54,6 @@ onMounted(async () => {
     </div>
     <TextInput label="Name" />
     <TermsAndConditions />
-    <Button @click="onCallStart">Start Call</Button>
+    <Button @click="onCallStart">Join</Button>
   </div>
 </template>
