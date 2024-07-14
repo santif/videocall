@@ -11,10 +11,15 @@ const microphones = ref([]);
 const selectedSpeaker = ref('');
 const speakers = ref([]);
 const audioLevel = ref(0);
+const showModal = ref(false);
 let audioContext = null;
 let analyser = null;
 let microphoneStream = null;
 let animationFrameId = null;
+
+const userName = ref('');
+const termsAccepted = ref(false);
+const joinButtonDisabled = ref(true);
 
 const getDevices = async () => {
   try {
@@ -73,7 +78,21 @@ const updateStream = async () => {
   }
 };
 
+const checkJoinButtonState = () => {
+  joinButtonDisabled.value = !(userName.value && termsAccepted.value);
+};
+
+const showTermsAndConditions = () => {
+  showModal.value = true;
+};
+
+const handleAccept = () => {
+  termsAccepted.value = true;
+  showModal.value = false;
+};
+
 watch([selectedCamera, selectedMicrophone], updateStream);
+watch([userName, termsAccepted], checkJoinButtonState);
 
 onMounted(async () => {
   await getDevices();
@@ -94,8 +113,11 @@ onUnmounted(() => {
   <div class="flex flex-col gap-6 p-4 bg-gray-100 rounded-md shadow-md">
     <h1 class="text-2xl font-bold mb-4">Welcome</h1>
     <div class="flex flex-col md:flex-row gap-4">
-      <div class="flex-1">
+      <div class="flex-1 relative">
         <video class="w-full max-h-96 rounded-md shadow-md" autoplay playsinline muted ref="video"></video>
+        <div class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-md z-50">
+          {{ userName }}
+        </div>
       </div>
       <div class="flex flex-col gap-4 flex-1">
         <DeviceSelect v-model="selectedCamera" :options="cameras" label="Camera" />
@@ -104,10 +126,24 @@ onUnmounted(() => {
         <AudioLevelMeter :level="audioLevel" />
       </div>
     </div>
-    <TextInput label="Name" />
-    <TermsAndConditions />
+    <TextInput v-model="userName" label="Name" />
+    <div class="flex items-center gap-2">
+      <input type="checkbox" v-model="accepted" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+      <label class="text-gray-700">I agree to the <a @click="showTermsAndConditions">terms and conditions</a></label>
+    </div>
     <div class="flex justify-center">
-      <Button @click="onCallStart">Join</Button>
+      <Button :disabled="joinButtonDisabled" @click="onCallStart">Join</Button>
     </div>
   </div>
+
+  <Modal v-if="showModal" @close="showModal = false" @accept="handleAccept">
+    <template #title>Terms and Conditions</template>
+    <template #content>
+      <!-- Contenido del modal con los términos y condiciones -->
+      <p>Your terms and conditions go here...</p>
+    </template>
+    <template #footer>
+      <Button @click="handleAccept">Accept</Button>
+    </template>
+  </Modal>
 </template>
