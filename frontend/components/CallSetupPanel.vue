@@ -1,9 +1,5 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue';
-import Select from '@/components/Select.vue';
-import TextInput from '@/components/TextInput.vue';
-import TermsAndConditions from '@/components/TermsAndConditions.vue';
-import Button from '@/components/Button.vue';
 
 defineProps(['onCallStart']);
 
@@ -64,12 +60,12 @@ onMounted(async () => {
     <h1 class="text-2xl font-bold mb-4">Welcome</h1>
     <div class="flex flex-col md:flex-row gap-4">
       <div class="flex-1">
-        <video class="w-full max-h-96 rounded-md shadow-md" autoplay playsinline muted ref="video"></video>
+        <video class="w-full max-h-96 rounded-md shadow-md border-2 border-gray-300" autoplay playsinline muted ref="video"></video>
       </div>
       <div class="flex flex-col gap-4 flex-1">
-        <Select v-model="selectedCamera" :options="cameras" label="Camera" />
-        <Select v-model="selectedMicrophone" :options="microphones" label="Microphone" />
-        <Select v-model="selectedSpeaker" :options="speakers" label="Speaker" />
+        <DeviceSelect v-model="selectedCamera" :options="cameras" label="Camera" />
+        <DeviceSelect v-model="selectedMicrophone" :options="microphones" label="Microphone" />
+        <DeviceSelect v-model="selectedSpeaker" :options="speakers" label="Speaker" />
       </div>
     </div>
     <TextInput label="Name" />
