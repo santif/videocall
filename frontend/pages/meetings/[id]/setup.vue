@@ -6,5 +6,7 @@ const startCall = () => {
 </script>
 
 <template>
-  <CallSetupPanel :onCallStart="startCall" />
+  <div class="p-4">
+    <CallSetupPanel :onCallStart="startCall" />
+  </div>
 </template>

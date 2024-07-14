@@ -1,3 +1,3 @@
 <template>
-    <checkbox>I accept the terms and conditions</checkbox>
+    <input type="checkbox">I accept the terms and conditions</input>
 </template>
