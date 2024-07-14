@@ -6,9 +6,5 @@ const startCall = () => {
 </script>
 
 <template>
-  <div>
-    <h1>Videocall</h1>
-    <video></video>
-    <Button @click="startCall">Start Call</Button>
-  </div>
+  <CallSetupPanel :onCallStart="startCall" />
 </template>
