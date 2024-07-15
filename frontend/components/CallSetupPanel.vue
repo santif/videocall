@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
 
 defineProps(['onCallStart']);
 
@@ -17,7 +17,7 @@ let analyser = null;
 let microphoneStream = null;
 let animationFrameId = null;
 
-const userName = ref('');
+const name = ref('');
 const termsAccepted = ref(false);
 const joinButtonDisabled = ref(true);
 
@@ -80,7 +80,7 @@ const updateStream = async () => {
 };
 
 const checkJoinButtonState = () => {
-  joinButtonDisabled.value = !(userName.value && termsAccepted.value);
+  joinButtonDisabled.value = !(name.value && termsAccepted.value);
 };
 
 const showTermsAndConditions = () => {
@@ -93,11 +93,17 @@ const handleAccept = () => {
 };
 
 watch([selectedCamera, selectedMicrophone], updateStream);
-watch([userName, termsAccepted], checkJoinButtonState);
+watch([name, termsAccepted], checkJoinButtonState);
 
 onMounted(async () => {
   await getDevices();
   await updateStream();
+  nextTick(() => {
+    const nameInput = document.querySelector('input[name="name"]');
+    if (nameInput) {
+      nameInput.focus();
+    }
+  });
 });
 
 onUnmounted(() => {
@@ -112,12 +118,14 @@ onUnmounted(() => {
 
 <template>
   <div class="flex flex-col gap-6 p-4 bg-gray-100 rounded-md shadow-md">
-    <h1 class="text-2xl font-bold mb-4">Welcome</h1>
+    <h1 class="text-2xl font-bold mb-4">
+      Welcome, {{ name || 'Guest' }}
+    </h1>
     <div class="flex flex-col md:flex-row gap-4">
       <div class="flex-1 relative max-h-96">
         <video class="w-full h-full rounded-md shadow-md" autoplay playsinline muted ref="video"></video>
-        <div class="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md z-50">
-          {{ userName }}
+        <div class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-md text-center text-sm">
+          {{ name }}
         </div>
       </div>
       <div class="flex flex-col gap-4 flex-1">
@@ -127,9 +135,12 @@ onUnmounted(() => {
         <DeviceSelect v-model="selectedSpeaker" :options="speakers" label="Speaker" />
       </div>
     </div>
-    <TextInput v-model="userName" label="Name" />
+    <div class="flex flex-col">
+      <label class="text-gray-700 mb-2">Name</label>
+      <input type="text" v-model="name" name="name" class="p-2 border rounded-md shadow-sm" />
+    </div>
     <div class="flex items-center gap-2">
-      <input type="checkbox" v-model="accepted" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+      <input type="checkbox" v-model="termsAccepted" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
       <label class="text-gray-700">I agree to the terms and conditions</label>
       <a href="#" class="text-blue-600 hover:underline" @click="showTermsAndConditions">Read more</a>
     </div>
