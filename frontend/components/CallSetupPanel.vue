@@ -68,7 +68,8 @@ const updateStream = async () => {
     const updateAudioLevel = () => {
       analyser.getByteFrequencyData(dataArray);
       const sum = dataArray.reduce((a, b) => a + b, 0);
-      audioLevel.value = sum / dataArray.length;
+      const average = sum / dataArray.length;
+      audioLevel.value = Math.round((average / 255) * 100);
       animationFrameId = requestAnimationFrame(updateAudioLevel);
     };
 
@@ -113,23 +114,24 @@ onUnmounted(() => {
   <div class="flex flex-col gap-6 p-4 bg-gray-100 rounded-md shadow-md">
     <h1 class="text-2xl font-bold mb-4">Welcome</h1>
     <div class="flex flex-col md:flex-row gap-4">
-      <div class="flex-1 relative">
-        <video class="w-full max-h-96 rounded-md shadow-md" autoplay playsinline muted ref="video"></video>
-        <div class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-md z-50">
+      <div class="flex-1 relative max-h-96">
+        <video class="w-full h-full rounded-md shadow-md" autoplay playsinline muted ref="video"></video>
+        <div class="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white p-2 rounded-md z-50">
           {{ userName }}
         </div>
       </div>
       <div class="flex flex-col gap-4 flex-1">
         <DeviceSelect v-model="selectedCamera" :options="cameras" label="Camera" />
         <DeviceSelect v-model="selectedMicrophone" :options="microphones" label="Microphone" />
-        <DeviceSelect v-model="selectedSpeaker" :options="speakers" label="Speaker" />
         <AudioLevelMeter :level="audioLevel" />
+        <DeviceSelect v-model="selectedSpeaker" :options="speakers" label="Speaker" />
       </div>
     </div>
     <TextInput v-model="userName" label="Name" />
     <div class="flex items-center gap-2">
       <input type="checkbox" v-model="accepted" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-      <label class="text-gray-700">I agree to the <a @click="showTermsAndConditions">terms and conditions</a></label>
+      <label class="text-gray-700">I agree to the terms and conditions</label>
+      <a href="#" class="text-blue-600 hover:underline" @click="showTermsAndConditions">Read more</a>
     </div>
     <div class="flex justify-center">
       <Button :disabled="joinButtonDisabled" @click="onCallStart">Join</Button>
