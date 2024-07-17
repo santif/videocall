@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
+import Modal from './Modal.vue'; // Asegúrate de importar el componente Modal
 
 defineProps(['onCallStart']);
 
@@ -122,9 +123,9 @@ onUnmounted(() => {
       Welcome, {{ name || 'Guest' }}
     </h1>
     <div class="flex flex-col md:flex-row gap-4">
-      <div class="flex-1 relative max-h-96">
-        <video class="w-full h-full rounded-md shadow-md" autoplay playsinline muted ref="video"></video>
-        <div class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-md text-center text-sm">
+      <div class="flex-1 relative max-h-80">
+        <video class="w-full h-full rounded-md shadow-md object-cover" autoplay playsinline muted ref="video"></video>
+        <div class="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white p-2 rounded-md text-sm">
           {{ name }}
         </div>
       </div>
@@ -142,14 +143,14 @@ onUnmounted(() => {
     <div class="flex items-center gap-2">
       <input type="checkbox" v-model="termsAccepted" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
       <label class="text-gray-700">I agree to the terms and conditions</label>
-      <a href="#" class="text-blue-600 hover:underline" @click="showTermsAndConditions">Read more</a>
+      <a href="#" class="text-blue-600 hover:underline" @click.prevent="showTermsAndConditions">Read more</a>
     </div>
     <div class="flex justify-center">
       <Button :disabled="joinButtonDisabled" @click="onCallStart">Join</Button>
     </div>
   </div>
 
-  <Modal v-if="showModal" @close="showModal = false" @accept="handleAccept">
+  <Modal :visible="showModal" @close="showModal = false" @accept="handleAccept">
     <template #title>Terms and Conditions</template>
     <template #content>
       <!-- Contenido del modal con los términos y condiciones -->
