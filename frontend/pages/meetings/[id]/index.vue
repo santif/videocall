@@ -3,9 +3,6 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CallSetupPanel from '@/components/CallSetupPanel.vue';
 
-import MeetingSummary from '@/components/MeetingSummary.vue';
-import CallPanel from '@/components/CallPanel.vue';
-
 const route = useRoute();
 const router = useRouter();
 const meetingId = route.params.id as string;
@@ -16,7 +13,7 @@ const userSetupComplete = ref<boolean>(false);
 const fetchMeetingDetails = async () => {
   // Simula la llamada al backend para obtener el estado de la reunión y la configuración del usuario
   // Aquí deberías reemplazar esto con una llamada real a tu backend
-  const response = await fetch(`/api/meetings/${meetingId}`);
+  const response = await fetch(`/api/v1/meetings/${meetingId}`);
   const data = await response.json();
   meetingStatus.value = data.status;
   userSetupComplete.value = data.userSetupComplete;
@@ -35,10 +32,10 @@ const startCall = () => {
 
 <template>
   <div class="p-4">
-    <template v-if="meetingStatus === 'Finalizada'">
+    <template v-if="meetingStatus === 'ended'">
       <MeetingSummary :meetingId="meetingId" />
     </template>
-    <template v-else-if="meetingStatus === 'Lista' || meetingStatus === 'En curso'">
+    <template v-else-if="meetingStatus === 'ready' || meetingStatus === 'ongoing'">
       <template v-if="!userSetupComplete">
         <CallSetupPanel :onCallStart="startCall" />
       </template>
